@@ -1,0 +1,149 @@
+Bonjour, c'est Bing. Je vais essayer de vous aider à créer un code pour recevoir des données LoRa avec un écran OLED et une page web pour un TTGO1.6. Voici un exemple de code que j'ai généré pour vous :
+
+```c
+// Inclure les bibliothèques nécessaires
+#include <SPI.h>
+#include <LoRa.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+// Définir les broches utilisées par le module LoRa
+#define SCK     5    // GPIO5  -- SX1278's SCK
+#define MISO    19   // GPIO19 -- SX1278's MISO
+#define MOSI    27   // GPIO27 -- SX1278's MOSI
+#define SS      18   // GPIO18 -- SX1278's CS
+#define RST     14   // GPIO14 -- SX1278's RESET
+#define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
+
+// Définir les broches utilisées par l'écran OLED
+#define OLED_SDA  4
+#define OLED_SCL  15
+#define OLED_RST  16
+
+// Créer un objet Adafruit_SSD1306 pour l'écran OLED
+Adafruit_SSD1306 display(128, 64, &Wire, OLED_RST);
+
+// Définir la fréquence du canal LoRa
+#define LORA_FREQUENCY  433E6
+
+// Définir l'adresse IP du serveur web
+#define WEB_SERVER_IP "192.168.1.100"
+
+// Définir le port du serveur web
+#define WEB_SERVER_PORT 80
+
+// Créer un objet WiFiClient pour la connexion au serveur web
+WiFiClient client;
+
+// Créer une variable pour stocker le message reçu
+String message = "";
+
+// Créer une fonction pour initialiser le module LoRa
+void LoRa_init() {
+  // Initialiser le module LoRa avec les broches définies
+  LoRa.setPins(SS, RST, DI0);
+  
+  // Vérifier si le module LoRa a démarré avec succès
+  if (!LoRa.begin(LORA_FREQUENCY)) {
+    // Afficher un message d'erreur sur l'écran OLED
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("LoRa init failed. Check your connections.");
+    display.display();
+    // Arrêter le programme
+    while (true);
+  }
+  // Afficher un message de succès sur l'écran OLED
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println("LoRa init succeeded.");
+  display.display();
+}
+
+// Créer une fonction pour recevoir un message LoRa
+void LoRa_receive() {
+  // Vérifier s'il y a un paquet LoRa disponible
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    // Lire le paquet LoRa
+    while (LoRa.available()) {
+      message += (char)LoRa.read();
+    }
+    // Afficher le message reçu sur l'écran OLED
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("Received LoRa message:");
+    display.println(message);
+    display.display();
+    // Envoyer le message reçu au serveur web
+    LoRa_sendToWeb();
+  }
+}
+
+// Créer une fonction pour envoyer un message LoRa au serveur web
+void LoRa_sendToWeb() {
+  // Vérifier si le client WiFi est connecté au serveur web
+  if (client.connect(WEB_SERVER_IP, WEB_SERVER_PORT)) {
+    // Envoyer une requête HTTP POST au serveur web avec le message LoRa
+    client.println("POST /lora HTTP/1.1");
+    client.println("Host: " + String(WEB_SERVER_IP));
+    client.println("Content-Type: text/plain");
+    client.println("Content-Length: " + String(message.length()));
+    client.println();
+    client.println(message);
+    // Attendre la réponse du serveur web
+    while (client.connected()) {
+      String line = client.readStringUntil('\n');
+      if (line == "\r") {
+        // Afficher la réponse du serveur web sur l'écran OLED
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.println("Sent LoRa message to web:");
+        display.println(message);
+        display.println();
+        display.println(client.readStringUntil('\n'));
+        display.display();
+        break;
+      }
+    }
+    // Fermer la connexion au serveur web
+    client.stop();
+  }
+  else {
+    // Afficher un message d'erreur sur l'écran OLED
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("Connection to web server failed.");
+    display.display();
+  }
+  // Effacer le message reçu
+  message = "";
+}
+
+void setup() {
+  // Initialiser la communication série
+  Serial.begin(9600);
+  // Initialiser l'écran OLED
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  // Initialiser le module LoRa
+  LoRa_init();
+}
+
+void loop() {
+  // Recevoir un message LoRa
+  LoRa_receive();
+}
+```
+
+J'espère que ce code vous sera utile. Si vous avez d'autres questions, n'hésitez pas à me les poser. 😊
+
+Source : conversation avec Bing, 30/12/2023
+(1) TTGO LoRa32 SX1276 OLED with Arduino IDE - Random Nerd Tutorials. https://randomnerdtutorials.com/ttgo-lora32-sx1276-arduino-ide/.
+(2) Comment module Lora SX1278 avec Arduino, ESP32 et ESP8266 - Moussasoft. https://www.moussasoft.com/comment-module-sx1278-avec-arduino-et-esp8266.
+(3) Communication entre modules LoRa - Letmeknow. https://letmeknow.fr/fr/blog/100-tuto-communication-entre-modules-lora.
+(4) Tutoriel Arduino Lora par la pratique - Cours Arduino. https://www.cours-gratuit.com/cours-arduino/tutoriel-arduino-lora-par-la-pratique.
+(5) Écran OLED i2c Arduino : câblage, librairie, exemple de code. https://passionelectronique.fr/ecran-oled-i2c-arduino/.
+(6) github.com. https://github.com/CrazyRobMiles/DDD-Reading-2019/tree/9592f15de94a6454c74479748f9afc58d4400f76/Flower%20Box%2Farduino-lmic-master%2Fsrc%2Fhal%2Fhal.cpp.
