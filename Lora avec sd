@@ -1,6 +1,8 @@
-Bien sûr, voici un exemple de code pour la réception Lora avec affichage sur écran OLED, écriture sur carte SD en fichier texte et connexion WiFi pour un TTGO 1.6:
+/*Bien sûr, voici un exemple de code pour la réception Lora avec affichage sur écran OLED, écriture sur carte SD en fichier texte et connexion WiFi pour un TTGO 1.6:
 
 ```c++
+*/
+
 #include <SPI.h>
 #include <LoRa.h>
 #include <Wire.h>
@@ -99,7 +101,7 @@ void loop() {
 }
 ```
 
-Ce code utilise les bibliothèques `SPI`, `LoRa`, `Wire`, `Adafruit_GFX`, `Adafruit_SSD1306`, `WiFi`, `WiFiClient`, `WebServer` et `SD`. Il initialise l'écran OLED, la carte SD, la connexion WiFi et le serveur Web. Il écoute également les messages LoRa entrants et les affiche sur l'écran OLED tout en les écrivant sur la carte SD en fichier texte. Enfin, il fournit un serveur Web qui renvoie le contenu du fichier texte lorsqu'il est interrogé.
+/* Ce code utilise les bibliothèques `SPI`, `LoRa`, `Wire`, `Adafruit_GFX`, `Adafruit_SSD1306`, `WiFi`, `WiFiClient`, `WebServer` et `SD`. Il initialise l'écran OLED, la carte SD, la connexion WiFi et le serveur Web. Il écoute également les messages LoRa entrants et les affiche sur l'écran OLED tout en les écrivant sur la carte SD en fichier texte. Enfin, il fournit un serveur Web qui renvoie le contenu du fichier texte lorsqu'il est interrogé.
 
 J'espère que cela vous aidera à démarrer votre projet. Bonne chance!.
 
@@ -110,3 +112,5 @@ Source : conversation avec Bing, 30/12/2023
 (4) C’est quoi le réseau LoRa ? Définition et usages - Application IOT. https://www.application-iot.fr/glossaire/cest-quoi-le-reseau-lora/.
 (5) LoRaWAN : Tout savoir sur le réseau LoRa - Objetconnecte.com. https://www.objetconnecte.com/tout-savoir-reseau-lora-bouygues/.
 (6) en.wikipedia.org. https://en.wikipedia.org/wiki/LoRa.
+
+*/
