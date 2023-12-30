@@ -1,0 +1,112 @@
+Bien sûr, voici un exemple de code pour la réception Lora avec affichage sur écran OLED, écriture sur carte SD en fichier texte et connexion WiFi pour un TTGO 1.6:
+
+```c++
+#include <SPI.h>
+#include <LoRa.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <SD.h>
+
+#define SCK 5
+#define MISO 19
+#define MOSI 27
+#define SS 18
+#define RST 14
+#define DC 15
+#define CS 13
+
+#define BAND 868E6
+#define SSID "your_SSID"
+#define PASSWORD "your_PASSWORD"
+
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+WebServer server(80);
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+
+  if (!LoRa.begin(BAND)) {
+    Serial.println("Starting LoRa failed!");
+    while (1);
+  }
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    while (true);
+  }
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.println("LoRa Receiver");
+  display.display();
+
+  if (!SD.begin()) {
+    Serial.println("Card Mount Failed");
+    return;
+  }
+
+  WiFi.begin(SSID, PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+
+  server.on("/", []() {
+    String message = "";
+    File file = SD.open("/data.txt");
+    if (file) {
+      while (file.available()) {
+        message += char(file.read());
+      }
+      file.close();
+    }
+    server.send(200, "text/plain", message);
+  });
+
+  server.begin();
+  Serial.println("HTTP server started");
+}
+
+void loop() {
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    String message = "";
+    while (LoRa.available()) {
+      message += (char)LoRa.read();
+    }
+    Serial.println(message);
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("Received message:");
+    display.println(message);
+    display.display();
+
+    File file = SD.open("/data.txt", FILE_WRITE);
+    if (file) {
+      file.println(message);
+      file.close();
+    }
+  }
+
+  server.handleClient();
+}
+```
+
+Ce code utilise les bibliothèques `SPI`, `LoRa`, `Wire`, `Adafruit_GFX`, `Adafruit_SSD1306`, `WiFi`, `WiFiClient`, `WebServer` et `SD`. Il initialise l'écran OLED, la carte SD, la connexion WiFi et le serveur Web. Il écoute également les messages LoRa entrants et les affiche sur l'écran OLED tout en les écrivant sur la carte SD en fichier texte. Enfin, il fournit un serveur Web qui renvoie le contenu du fichier texte lorsqu'il est interrogé.
+
+J'espère que cela vous aidera à démarrer votre projet. Bonne chance!.
+
+Source : conversation avec Bing, 30/12/2023
+(1) LoRa : comment fonctionne le réseau IoT. https://www.journaldunet.fr/web-tech/dictionnaire-de-l-iot/1197635-lora-comment-fonctionne-le-reseau-iot-20221010/.
+(2) Tracker LoRaWAN 433 868 LoRa ESP32 Bluetooth WIFI - Passion Radio. https://www.passion-radio.fr/module/heltec-lora-esp32-883.html.
+(3) [Guide] Mettre en place un réseau LoRa dans les zones non couvertes. https://enless-wireless.com/fr/quelles-solutions-pour-la-mise-en-place-dun-reseau-lora-dans-les-zones-non-couvertes-par-les-operateurs/.
+(4) C’est quoi le réseau LoRa ? Définition et usages - Application IOT. https://www.application-iot.fr/glossaire/cest-quoi-le-reseau-lora/.
+(5) LoRaWAN : Tout savoir sur le réseau LoRa - Objetconnecte.com. https://www.objetconnecte.com/tout-savoir-reseau-lora-bouygues/.
+(6) en.wikipedia.org. https://en.wikipedia.org/wiki/LoRa.
