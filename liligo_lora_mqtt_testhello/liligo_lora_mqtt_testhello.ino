@@ -22,16 +22,16 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define BAND    868E6
 
 // Configuration WiFi
-const char* ssid = "maison2"; // Changez ici avec votre SSID WiFi
-const char* password = "berber15"; // Changez ici avec votre mot de passe WiFi
+const char* ssid = "votre_SSID"; // Changez ici avec votre SSID WiFi
+const char* password = "votre_MOT_DE_PASSE"; // Changez ici avec votre mot de passe WiFi
 
 // Configuration MQTT
-const char* mqtt_server = "192.168.1.148"; // Vous pouvez changer cela par votre serveur MQTT
-const char* mqtt_topic = "lora/received/";
+const char* mqtt_server = "broker.hivemq.com"; // Vous pouvez changer cela par votre serveur MQTT
+const char* mqtt_topic = "lora/received";
 const char* mqtt_client_id = "LoRaClient"; // ID du client MQTT
 const int mqtt_port = 1883; // Port du serveur MQTT
-const char* mqtt_user = "mqtt"; // Votre utilisateur MQTT
-const char* mqtt_password = "berber15"; // Votre mot de passe MQTT
+const char* mqtt_user = "votre_MQTT_USER"; // Votre utilisateur MQTT
+const char* mqtt_password = "votre_MQTT_PASSWORD"; // Votre mot de passe MQTT
 WiFiClient espClient;
 PubSubClient client(espClient);
 
